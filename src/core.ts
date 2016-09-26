@@ -27,6 +27,8 @@ import { MdTabsModule } from '@angular2-material/tabs';
 import { MdToolbarModule } from '@angular2-material/toolbar';
 import { MdTooltipModule } from '@angular2-material/tooltip';
 
+import { BizContainerComponent } from './shared/biz-container.component';
+
 const defaultImports: any[] = [
   BrowserModule,
   FormsModule,
@@ -54,53 +56,95 @@ const defaultImports: any[] = [
   MdTooltipModule
 ];
 
+const defaultDeclarations: any[] = [
+  BizContainerComponent
+];
+
+const defaultExports: any[] = [
+  BizContainerComponent
+];
+
+const defaultProviders: any[] = [
+
+];
+
 export function bizModule(metadata: BizModuleMetadata): BizModuleMetadata {
-  let isRoot: boolean = metadata.path === '';
-  let routes: Routes = [];
+  if (metadata.scaffold) {
+    if (!metadata.path) { metadata.path = metadata.scaffold.path; }
+  }
+  
+  let isRoot: boolean = metadata.path == '' || !metadata.path;
+  
+  metadata.data = metadata.data || {};
+  metadata.imports = (metadata.imports || []).concat(defaultImports);
+  metadata.declarations = metadata.declarations || [];
+  metadata.exports = metadata.exports || [];
+  metadata.providers = metadata.providers || [];
+
+  if (isRoot) {
+    metadata.declarations = metadata.declarations.concat(defaultDeclarations);
+    metadata.exports = metadata.exports.concat(defaultExports);
+    metadata.providers = metadata.providers.concat(defaultProviders);
+  }
+
+  if (metadata.scaffold) {
+    if (!metadata.bootstrap) { metadata.bootstrap = metadata.scaffold.bootstrap; }
+    if (!metadata.component) { metadata.component = metadata.scaffold.component; }
+    if (!metadata.pathMatch) { metadata.pathMatch = metadata.scaffold.pathMatch; }
+    if (!metadata.redirectTo) { metadata.redirectTo = metadata.scaffold.redirectTo; }
+    if (!metadata.containers) { metadata.containers = metadata.scaffold.containers; }
+
+    metadata.imports = metadata.imports.concat(metadata.scaffold.imports || []);
+    metadata.declarations = metadata.declarations.concat(metadata.scaffold.declarations || []);
+    metadata.exports = metadata.exports.concat(metadata.scaffold.exports || []);
+    metadata.providers = metadata.providers.concat(metadata.scaffold.providers || []);
+  }
+
+  let routes: Routes = [buildRoute(metadata)];
   let routingProviders: any[] = metadata.resolve ? Object.keys(metadata.resolve).map((k) => { return metadata.resolve[k] }) : [];
 
-  if (metadata.outlets) {
-    routes.concat(metadata.outlets.map((outlet: any) => {
-      console.log('outlet');
-      console.log(outlet);
+  if (metadata.containers) {
+    metadata.data['bizContainers'] = metadata.containers;
 
-      return buildRoute(_.assign(_.clone(metadata), { 
-        outlet: "" // TODO: Get outlet name
-      }));
-    }));
-  } else {
-    routes.push(buildRoute(metadata));
+    let containerComponents = Object.keys(metadata.containers).map((key: any) => { return metadata.containers[key]; });
+
+    metadata.exports = (metadata.exports || []).concat(containerComponents);
+    metadata.declarations = (metadata.declarations || []).concat(containerComponents);
   }
 
   let routing: ModuleWithProviders = isRoot ? RouterModule.forRoot(routes) : RouterModule.forChild(routes);
 
-  metadata.imports = (metadata.imports || []).concat([routing]).concat(defaultImports);
-  metadata.declarations = (metadata.declarations || []).concat([metadata.component]);
-  metadata.exports = (metadata.exports || []).concat([metadata.component]);
-  metadata.providers = (metadata.providers || []).concat([routingProviders]);
+  metadata.imports = metadata.imports.concat([routing]);
+  metadata.providers = metadata.providers.concat([routingProviders]);
+
+  if (metadata.component) {
+    metadata.declarations = metadata.declarations.concat([metadata.component]);
+    metadata.exports = metadata.exports.concat([metadata.component]);
+  }
 
   return metadata;
-  /*return function(moduleClass) {
-    return NgModule(metadata)(moduleClass);
-  }*/
 }
 
 export function buildRoute(route: Route): Route {
-  let newRoute: Route = _.pick(route, [
-    'path',
-    'pathMatch',
-    'component',
-    'redirectTo',
-    'outlet',
-    'canActivate',
-    'canActivateChild',
-    'canDeactivate',
-    'canLoad',
-    'data',
-    'resolve',
-    'children',
-    'loadChildren'
-  ]);
+  let newRoute: Route = {};
+  
+  if (route.path || route.path == "") newRoute.path = route.path;
+  if (route.pathMatch) newRoute.pathMatch = route.pathMatch;
+  if (route.component) newRoute.component = route.component;
+  if (route.outlet) newRoute.outlet = route.outlet;
+  if (route.canActivate) newRoute.canActivate = route.canActivate;
+  if (route.canActivateChild) newRoute.canActivateChild = route.canActivateChild;
+  if (route.canDeactivate) newRoute.canDeactivate = route.canDeactivate;
+  if (route.canLoad) newRoute.canLoad = route.canLoad;
+  if (route.data) newRoute.data = route.data;
+  if (route.resolve) newRoute.resolve = route.resolve;
+  if (route.children) newRoute.children = route.children;
+  if (route.loadChildren) newRoute.loadChildren = route.loadChildren;
+  if (route.redirectTo) newRoute.redirectTo = route.redirectTo;
+
+  if (newRoute.outlet) {
+    delete newRoute['redirectTo'];
+  }
 
   if (newRoute.redirectTo) {
     delete newRoute['component'];
@@ -115,19 +159,9 @@ export function BizScaffold(metadata: BizScaffoldMetadata): Function {
   }
 }
 
-export function BizOutlet(metadata: BizOutletMetadata): Function {
-  return function (componentClass) {
-    return Component(metadata.component)(componentClass);
-  }
-}
-
-export interface BizOutletMetadata {
-  name: string,
-  component: Component
-}
-
 export interface BizModuleMetadata extends NgModule, Route {
-  outlets?: any[];
+  scaffold?: BizScaffoldMetadata;
+  containers?: any;
 }
 
 export interface BizViewMetadata extends BizResolvesMetadata {
@@ -146,8 +180,8 @@ export interface BizModalMetadata extends BizModuleMetadata {
 
 }
 
-export interface BizScaffoldMetadata extends BizModuleMetadata {
-  outlets: any[];
+export interface BizScaffoldMetadata extends NgModule, Route {
+  containers?: any;
 }
 
 export interface BizResolvesMetadata {
