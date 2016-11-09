@@ -1,0 +1,1 @@
+import '@biznas/ng-core/vendor';

@@ -3,7 +3,7 @@ import { Router, ActivatedRouteSnapshot, UrlSegment, RouterState, NavigationEnd 
 
 @Component({
   selector: 'biz-container',
-  templateUrl: './biz-container.component.html'
+  template: '<div #dynamicTarget></div>'
 })
 export class BizContainerComponent {
 

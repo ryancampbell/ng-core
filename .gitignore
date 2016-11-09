@@ -8,6 +8,8 @@ node_modules
 .gi#
 *.js~
 *.ht~
+*.js.map
+*.d.ts
 x
 y
 z
