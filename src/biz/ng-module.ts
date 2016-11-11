@@ -75,42 +75,76 @@ export class BizNgModule {
     return this;
   }
 
+  /**
+   * Adds to declarations
+   * Adds to exports
+   * Adds as component on route
+   */
   public component(component: any): BizNgModule {
     this._component = component;
 
     return this;
   }
 
+  /**
+   * Adds containers to route data
+   * Adds container components to exports and declarations
+   */
   public containers(containers: any): BizNgModule {
     _.assign(this._containers, containers);
 
     return this;
   }
 
+  /**
+   * Method for appending data to route
+   */
   public data(data: any): BizNgModule {
     _.assign(this._data, data);
 
     return this;
   }
 
+  /**
+   * Adds BizContainerComponent to declarations and exports
+   * Adds component to bootstrap
+   * Defaults route to path '', pathMatch: 'full'
+   */
   public root(): BizNgModule {
     this._root = true;
 
     return this;
   }
 
+  /**
+   * Creates Routes array with single route
+   * Adds RouterModule.forRoot(routes) or RouterModule.forChild(routes) to imports
+   * Adds all resolve services as providers
+   */
   public route(route: Route): BizNgModule {
     this._route = route;
 
     return this;
   }
 
+  /**
+   * Calls scaffold.build(this)
+   */
   public scaffold(scaffold: BizScaffold<any>): BizNgModule {
     this._scaffold = scaffold;
 
     return this;
   }
 
+  /**
+   * Builds @NgModule() config in the following order:
+   * - Defaults
+   * - Scaffold
+   * - Root
+   * - Containers
+   * - Component
+   * - Route
+   */
   public build(): NgModule {
     this.buildDefaults();
     this.buildScaffold();
@@ -118,8 +152,6 @@ export class BizNgModule {
     this.buildContainers();
     this.buildComponent();
     this.buildRoute();
-
-    console.log(this._ngModule);
 
     return this._ngModule;
   }
@@ -157,9 +189,6 @@ export class BizNgModule {
     }
   }
 
-  /**
-   * 
-   */
   private buildScaffold(): void {
     let m: NgModule = this._ngModule;
 
@@ -168,9 +197,6 @@ export class BizNgModule {
     }
   }
 
-  /**
-   * 
-   */
   private buildContainers(): void {
     let m: NgModule = this._ngModule;
 
@@ -186,9 +212,6 @@ export class BizNgModule {
     }
   }
 
-  /**
-   * 
-   */
   private buildRoute(): void {
     let m: NgModule = this._ngModule;
     let r: Route = this._route;
@@ -232,9 +255,6 @@ export class BizNgModule {
     }
   }
 
-  /**
-   * 
-   */
   private buildComponent(): void {
     let m: NgModule = this._ngModule;
 

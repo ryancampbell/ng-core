@@ -19,7 +19,7 @@ module.exports = webpackMerge(commonConfig, {
   },
 
   plugins: [
-    //new webpack.optimize.CommonsChunkPlugin('common')
+    new webpack.optimize.CommonsChunkPlugin('common')
   ],
 
   node: {

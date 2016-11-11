@@ -1,22 +1,16 @@
 import { BizNgModule } from './ng-module';
 
 export abstract class BizScaffold<C> {
-  //public moduleMetadata: BizModuleMetadata;
 
-  //public scaffoldMetadata: BizModuleMetadata;
+  // ========================================
+  // constructor
+  // ========================================
 
-  public constructor(public metadataConfig?: C) {}
+  public constructor(public config?: C) {}
 
-  /*public init(moduleMetadata: BizModuleMetadata):void {
-    // Apply defaults from scaffold config to new scaffold instance config
-    if (this.scaffoldMetadata.defaults) {
-      _.defaults(this.moduleMetadata, _.cloneDeep(this.scaffoldMetadata.defaults));
-    }
-  }
-  public preConfig(): void {}
-  public postConfig(): void {}*/
+  // ========================================
+  // public methods
+  // ========================================
 
-  public build(bizNgModule: BizNgModule): void {
-
-  }
+  public abstract build(bizNgModule: BizNgModule): void;
 }

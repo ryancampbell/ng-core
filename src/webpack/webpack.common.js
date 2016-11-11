@@ -55,8 +55,7 @@ module.exports = {
     ),
 
     new CopyWebpackPlugin([{
-      from: 'src/public',
-      to: 'public'
+      from: 'src/**/*.html'
     }]),
 
     // new HtmlWebpackPlugin({
