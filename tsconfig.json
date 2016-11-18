@@ -16,8 +16,9 @@
     ]
   },
   "include": [
-    "index",
-    "server",
+    "index.ts",
+    "server.ts",
+    "webpack-config.ts",
     "src/**/*"
   ],
   "exclude": [

@@ -1,6 +1,6 @@
 import { BizNgModule } from './ng-module';
 
-export abstract class BizScaffold<C> {
+export class BizScaffold<C> {
 
   // ========================================
   // constructor
@@ -12,5 +12,5 @@ export abstract class BizScaffold<C> {
   // public methods
   // ========================================
 
-  public abstract build(bizNgModule: BizNgModule): void;
+  public build(bizNgModule: BizNgModule): void {}
 }

@@ -1,38 +1,24 @@
 import * as _ from 'lodash';
 
-import 'angular2-universal-polyfills';
-
 import { ModuleWithProviders, NgModuleFactory, NgModule, Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule }  from '@angular/forms';
 import { Route, Routes, RouterModule, Resolve, ResolveData, Data, LoadChildren } from '@angular/router';
-import { BrowserModule } from '@angular/platform-browser';
 import { HttpModule } from '@angular/http';
-import { MaterialModule } from '@angular/material';
-import { UniversalModule } from 'angular2-universal';
+//import { MaterialModule } from '@angular/material';
 
 import { BizContainerComponent } from './components/biz-container.component';
 
 import { BizScaffold } from './scaffold';
 
-const defaultImports: any[] = [
-  UniversalModule,
-  FormsModule,
-  RouterModule,
-  MaterialModule.forRoot()
-];
+let universalModule: any;
 
-const defaultDeclarations: any[] = [
-  BizContainerComponent
-];
-
-const defaultExports: any[] = [
-  BizContainerComponent
-];
-
-const defaultProviders: any[] = [
-
-];
+/**
+ * 
+ */
+export function setUniversalModule(module: any): void {
+  universalModule = module;
+}
 
 /**
  * 
@@ -42,6 +28,8 @@ export class BizNgModule {
   // ========================================
   // private properties
   // ========================================
+
+  private _children: Array<any>;
 
   private _component: any;
 
@@ -70,7 +58,23 @@ export class BizNgModule {
   // ========================================
 
   public ngModule(ngModule?: NgModule): BizNgModule {
-    this._ngModule = ngModule || {};
+    if (this._ngModule) {
+      if (ngModule) {
+        _.merge(this._ngModule, ngModule); 
+      }
+    } else {
+      this._ngModule = ngModule || {};
+    }
+
+    return this;
+  }
+
+  /**
+   * Adds to imports
+   * Adds to route
+   */
+  public children(children: Array<any>): BizNgModule {
+    this._children = children;
 
     return this;
   }
@@ -151,6 +155,7 @@ export class BizNgModule {
     this.buildRoot();        
     this.buildContainers();
     this.buildComponent();
+    this.buildChildren();
     this.buildRoute();
 
     return this._ngModule;
@@ -164,7 +169,7 @@ export class BizNgModule {
     let m: NgModule = this._ngModule;
 
     this._data = this._data || {};
-    m.imports = (m.imports || []).concat(defaultImports);
+    m.imports = m.imports || [];
     m.declarations = m.declarations || [];
     m.exports = m.exports || [];
     m.providers = m.providers || [];
@@ -174,18 +179,35 @@ export class BizNgModule {
     let m: NgModule = this._ngModule;
 
     if (this._root) {
-      m.declarations = m.declarations.concat(defaultDeclarations);
-      m.exports = m.exports.concat(defaultExports);
-      m.providers = m.providers.concat(defaultProviders);
+      m.imports = m.imports.concat([
+        universalModule,
+        FormsModule//,
+        //MaterialModule.forRoot()
+      ]);
+
+      m.declarations = m.declarations.concat([
+        BizContainerComponent
+      ]);
+
+      m.exports = m.exports.concat([
+        BizContainerComponent
+      ]);
 
       if (this._component) {
         m.bootstrap = [this._component];
       }
 
-      this._route = {
-        path: '',
-        pathMatch: 'full'
-      };
+      if (!this._route) {
+        this._route = {
+          path: '',
+          pathMatch: 'full'
+        };
+      }
+    } else {
+      m.imports = m.imports.concat([
+        CommonModule//,
+        //MaterialModule
+      ]);
     }
   }
 
@@ -209,6 +231,15 @@ export class BizNgModule {
 
       m.exports = (m.exports || []).concat(containerComponents);
       m.declarations = (m.declarations || []).concat(containerComponents);
+    }
+  }
+
+  private buildChildren(): void {
+    let m: NgModule = this._ngModule;
+    let r: Route = this._route;
+
+    if (this._children) {
+      m.imports = m.imports.concat(this._children);
     }
   }
 

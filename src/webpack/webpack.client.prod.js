@@ -3,16 +3,15 @@ var webpackMerge = require('webpack-merge');
 var commonConfig = require('./webpack.common.js');
 var helpers = require('./helpers');
 
-const UglifyJsPlugin = require('webpack/lib/optimize/UglifyJsPlugin'),
+const CopyWebpackPlugin = require('copy-webpack-plugin'),
+  UglifyJsPlugin = require('webpack/lib/optimize/UglifyJsPlugin'),
   DefinePlugin = require('webpack/lib/DefinePlugin');
 
 module.exports = webpackMerge(commonConfig, {
   target: 'web',
 
   entry: {
-    'main': './src/main',
-    'upload': './src/upload/main',
-    'results': './src/results/main'
+    'root': './biz.client' // TODO: Make this dynamic
   },
 
   output: {
@@ -52,6 +51,12 @@ module.exports = webpackMerge(commonConfig, {
         'ENV': "'production'"
       }
     }),
+
+    new CopyWebpackPlugin([{
+      context: 'src',
+      from: '**/index.html',
+      to: '..'
+    }])
   ],
 
   node: {

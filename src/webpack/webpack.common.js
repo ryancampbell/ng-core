@@ -2,9 +2,6 @@ const webpack = require('webpack');
 const helpers = require('./helpers');
 
 const ForkCheckerPlugin = require('awesome-typescript-loader').ForkCheckerPlugin;
-const CopyWebpackPlugin = require('copy-webpack-plugin');
-// const HtmlWebpackPlugin = require('html-webpack-plugin');
-// const HtmlElementsPlugin = require('./html-elements-plugin');
 
 module.exports = {
   resolve: {
@@ -53,10 +50,6 @@ module.exports = {
       /angular(\\|\/)core(\\|\/)src(\\|\/)linker/,
       helpers.root('./src')
     ),
-
-    new CopyWebpackPlugin([{
-      from: 'src/**/*.html'
-    }]),
 
     // new HtmlWebpackPlugin({
     //   template: 'src/index.html',

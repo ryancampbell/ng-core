@@ -1,14 +1,36 @@
-// polyfills have to be first
+import 'core-js/es6/reflect';
+import 'core-js/es7/reflect';
+import 'ts-helpers';
+
+// the polyfills must be one of the first things imported in node.js.
+// The only modules to be imported higher - node modules with es6-promise 3.x or other Promise polyfill dependency
+// (rule of thumb: do it if you have zone.js exception that it has been overwritten)
+// if you are including modules that modify Promise, such as NewRelic,, you must include them before polyfills
 import 'angular2-universal-polyfills';
-import * as express from 'express';
+
+// Fix Universal Style
+import { NodeDomRootRenderer, NodeDomRenderer } from 'angular2-universal/node';
+function renderComponentFix(componentProto: any) {
+  return new NodeDomRenderer(this, componentProto, this._animationDriver);
+}
+NodeDomRootRenderer.prototype.renderComponent = renderComponentFix;
+// End Fix Universal Style
+
 import * as path from 'path';
+import * as express from 'express';
 import * as compression from 'compression';
-import { createEngine, ExpressEngineConfig } from 'angular2-express-engine';
 
 // Angular 2
 import { enableProdMode } from '@angular/core';
+// Angular 2 Universal
+import { createEngine } from 'angular2-express-engine';
+import { UniversalModule } from 'angular2-universal/node';
 
+// Biz
+import { setUniversalModule } from './ng-module';
 import { BizConfig } from './config';
+
+setUniversalModule(UniversalModule);
 
 const ROOT = process.cwd();
 
@@ -42,64 +64,45 @@ export class BizServer {
   // ========================================
 
   private init(): void {
+    // enable prod for faster renders
+    enableProdMode();
+
     this.app = express();
 
     // 1. set up Angular Universal to be the rendering engine for Express
     this.app.engine('.html', createEngine({}));
-    this.app.set('views', path.join(process.cwd(), 'dist'));
+    this.app.set('views', path.join(ROOT, 'dist'));
     this.app.set('view engine', 'html');
 
-    this.app.get('*', function(req, res, next) {
-      // http://docs.aws.amazon.com/ElasticLoadBalancing/latest/DeveloperGuide/TerminologyandKeyConcepts.html#x-forwarded-proto
-      if (req.get('x-forwarded-proto') && req.get('x-forwarded-proto') != "https") {
-        res.set('x-forwarded-proto', 'https');
-
-        if (req.get('host').split('.')[0] !== 'www') {
-          res.redirect('https://www.' + req.get('host') + req.url);
-        } else {
-          res.redirect('https://' + req.get('host') + req.url);
-        }
-
-      } else {
-        next();
-      }
-    });
+    this.app.use(compression());
 
     // Serve static files
-    this.app.use('/client', compression());
-    this.app.use('/client', express.static(path.join(ROOT, 'dist', 'client')));
-    this.app.use('/public', compression());
+    this.app.use(express.static(path.join(ROOT, 'public')));
     this.app.use('/public', express.static(path.join(ROOT, 'public')));
-    this.app.use(express.static(path.join(ROOT, 'public'), {index: false})); // public
-
-    // enable prod for faster renders
-    enableProdMode();
-
-    //this.app.use('/api', require('./api/index.js'));
-
-    /*this.app.get(['/results', '/results/*'], ngPage(ResultsAppModule, 'results/index', '/results/'));
-    this.app.get(['/upload', '/upload/*'], ngPage(UploadAppModule, 'upload/index', '/upload/'));*/
-
+    
+    this.app.use('/client', express.static(path.join(ROOT, 'dist', 'client')));
+    
     this.app.get('/', ngPage(this.config.apps['root'], 'index', '/'));
+    
+    this.app.get('*', function(req, res) {
+      res.setHeader('Content-Type', 'application/json');
+      var pojo = { status: 404, message: 'No Content' };
+      var json = JSON.stringify(pojo, null, 2);
+      res.status(404).send(json);
+    });
 
     function ngPage(module: any, htmlPath: string, baseUrl: string): any {
       return (req, res) => {
-        // Our Universal - express configuration object
-        const expressConfig : ExpressEngineConfig = {
+        res.render(htmlPath, {
           req,
           res,
-          ngModule: module,
-          // preboot: false,
+          // time: true, // use this to determine what part of your app is slow only in development
+          preboot: true,
           baseUrl: baseUrl,
-
           requestUrl: req.originalUrl,
-          originUrl: 'http://localhost:8888'
-        };
-
-        // NOTE: everything passed in here will be set as properties to the top level Zone
-        // access these values in your code like this: Zone.current.get('req');
-        // this is temporary; we will have a non-Zone way of getting these soon
-        res.render(htmlPath, expressConfig);
+          originUrl: req.hostname,
+          ngModule: module
+        });
       };
     }
   }

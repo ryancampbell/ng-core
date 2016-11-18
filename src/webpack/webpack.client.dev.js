@@ -4,6 +4,8 @@ var commonConfig = require('./webpack.common.js');
 var helpers = require('./helpers');
 var path = require('path');
 
+const CopyWebpackPlugin = require('copy-webpack-plugin');
+
 //var bizConfig = require(path.join(process.cwd(), 'biz.config.ts'));
 
 module.exports = webpackMerge(commonConfig, {
@@ -19,7 +21,13 @@ module.exports = webpackMerge(commonConfig, {
   },
 
   plugins: [
-    new webpack.optimize.CommonsChunkPlugin('common')
+    new webpack.optimize.CommonsChunkPlugin('common'),
+
+    new CopyWebpackPlugin([{
+      context: 'src',
+      from: '**/index.html',
+      to: '..'
+    }])
   ],
 
   node: {
