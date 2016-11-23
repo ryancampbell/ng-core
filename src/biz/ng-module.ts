@@ -8,6 +8,7 @@ import { HttpModule } from '@angular/http';
 //import { MaterialModule } from '@angular/material';
 
 import { BizContainerComponent } from './components/biz-container.component';
+import { BizRootComponent } from './components/biz-root.component';
 
 import { BizScaffold } from './scaffold';
 
@@ -40,6 +41,8 @@ export class BizNgModule {
   private _ngModule: NgModule;
 
   private _root: boolean = false;
+
+  private _rootComponent: any;
 
   private _route: Route;
 
@@ -114,8 +117,9 @@ export class BizNgModule {
    * Adds component to bootstrap
    * Defaults route to path '', pathMatch: 'full'
    */
-  public root(): BizNgModule {
+  public root(rootComponent?: any): BizNgModule {
     this._root = true;
+    this._rootComponent = rootComponent || BizRootComponent;
 
     return this;
   }
@@ -173,6 +177,7 @@ export class BizNgModule {
     m.declarations = m.declarations || [];
     m.exports = m.exports || [];
     m.providers = m.providers || [];
+    m.bootstrap = m.bootstrap || [];
   }
 
   private buildRoot(): void {
@@ -185,17 +190,8 @@ export class BizNgModule {
         //MaterialModule.forRoot()
       ]);
 
-      m.declarations = m.declarations.concat([
-        BizContainerComponent
-      ]);
-
-      m.exports = m.exports.concat([
-        BizContainerComponent
-      ]);
-
-      if (this._component) {
-        m.bootstrap = [this._component];
-      }
+      m.declarations = m.declarations.concat([this._rootComponent]);
+      m.bootstrap = m.bootstrap.concat([this._rootComponent]);
 
       if (!this._route) {
         this._route = {
@@ -291,7 +287,6 @@ export class BizNgModule {
 
     if (this._component) {
       m.declarations = m.declarations.concat([this._component]);
-      m.exports = m.exports.concat([this._component]);
 
       if (this._route) {
         this._route.component = this._component;

@@ -1,13 +1,12 @@
 {
   "name": "@biznas/ng-core",
   "description": "",
-  "version": "0.2.13",
+  "version": "0.2.15",
   "main": "index.js",
   "typings": "index.d.ts",
   "scripts": {
-    "dev": "webpack --watch",
-    "build": "rimraf dist && webpack --config node_modules/@biznas/ng-core/src/webpack/webpack.prod.js --progress --profile --bail",
-    "start": "node dist/server/server.js"
+    "dev": "tsc --watch",
+    "prepublish": "tsc"
   },
   "author": "",
   "license": "ISC",
