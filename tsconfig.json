@@ -18,6 +18,7 @@
   "include": [
     "index.ts",
     "server.ts",
+    "globals.ts",
     "webpack-config.ts",
     "src/**/*"
   ],

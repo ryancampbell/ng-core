@@ -1,0 +1,37 @@
+{
+	"tags":
+	{
+		"allowUnknownTags" : true
+	},
+	"plugins":[
+		 "plugins/markdown"
+		,"/Users/ryan/.nvm/versions/node/v5.7.1/lib/node_modules/tsdoc/template/plugins/TSDoc.js"
+	],
+	"opts":
+	{
+		"template"	:"/Users/ryan/.nvm/versions/node/v5.7.1/lib/node_modules/tsdoc/template",
+		"recurse"	:"true"
+	},
+	"templates" : {
+		"cleverLinks"     : false,
+		"monospaceLinks"  : false
+	},
+	"source":
+	{
+		"includePattern": "(\\.d)?\\.ts$"
+	},
+	"markdown"  : {
+		"parser"   : "gfm",
+		"hardwrap" : true
+	},
+	"tsdoc":{
+		"source"		:"/Users/ryan/biznas-projects/biznas-ng-core/src/",
+		"destination"	:"/Users/ryan/biznas-projects/biznas-ng-core/docs",
+		"tutorials"		:"",
+		"systemName"	: "biznas-ng-core",
+		"footer"		: "",
+		"copyright"		: "biznas-ng-core Copyright © 2016 ryan.",
+		"outputSourceFiles" : true,
+		"commentsOnly": true
+	}
+}

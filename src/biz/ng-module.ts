@@ -10,7 +10,7 @@ import { HttpModule } from '@angular/http';
 import { BizContainerComponent } from './components/biz-container.component';
 import { BizRootComponent } from './components/biz-root.component';
 
-import { BizScaffold } from './scaffold';
+import { BizFraming } from './framing';
 
 let universalModule: any;
 
@@ -38,6 +38,8 @@ export class BizNgModule {
 
   private _data: any = {};
 
+  private _framing: BizFraming<any>;
+
   private _ngModule: NgModule;
 
   private _root: boolean = false;
@@ -45,8 +47,6 @@ export class BizNgModule {
   private _rootComponent: any;
 
   private _route: Route;
-
-  private _scaffold: BizScaffold<any>;
 
   // ========================================
   // constructor
@@ -106,7 +106,7 @@ export class BizNgModule {
   /**
    * Method for appending data to route
    */
-  public data(data: any): BizNgModule {
+  public data<T>(data: T): BizNgModule {
     _.assign(this._data, data);
 
     return this;
@@ -130,16 +130,20 @@ export class BizNgModule {
    * Adds all resolve services as providers
    */
   public route(route: Route): BizNgModule {
-    this._route = route;
+    if (this._route) {
+      _.assign(this._route, route);
+    } else {
+      this._route = route;
+    }
 
     return this;
   }
 
   /**
-   * Calls scaffold.build(this)
+   * Calls framing.build(this)
    */
-  public scaffold(scaffold: BizScaffold<any>): BizNgModule {
-    this._scaffold = scaffold;
+  public framing(framing: BizFraming<any>): BizNgModule {
+    this._framing = framing;
 
     return this;
   }
@@ -155,7 +159,7 @@ export class BizNgModule {
    */
   public build(): NgModule {
     this.buildDefaults();
-    this.buildScaffold();
+    this.buildFraming();
     this.buildRoot();        
     this.buildContainers();
     this.buildComponent();
@@ -182,6 +186,10 @@ export class BizNgModule {
 
   private buildRoot(): void {
     let m: NgModule = this._ngModule;
+    let defaultRoute: any = {
+      path: '',
+      pathMatch: 'full'
+    };
 
     if (this._root) {
       m.imports = m.imports.concat([
@@ -193,11 +201,10 @@ export class BizNgModule {
       m.declarations = m.declarations.concat([this._rootComponent]);
       m.bootstrap = m.bootstrap.concat([this._rootComponent]);
 
-      if (!this._route) {
-        this._route = {
-          path: '',
-          pathMatch: 'full'
-        };
+      if (this._route) {
+        _.defaults(this._route, defaultRoute);
+      } else {
+        this._route = defaultRoute
       }
     } else {
       m.imports = m.imports.concat([
@@ -207,11 +214,11 @@ export class BizNgModule {
     }
   }
 
-  private buildScaffold(): void {
+  private buildFraming(): void {
     let m: NgModule = this._ngModule;
 
-    if (this._scaffold) {
-      this._scaffold.build(this);
+    if (this._framing) {
+      this._framing.build(this);
     }
   }
 

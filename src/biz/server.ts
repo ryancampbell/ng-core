@@ -1,3 +1,5 @@
+import { globals } from '../../globals';
+
 import 'core-js/es6/reflect';
 import 'core-js/es7/reflect';
 import 'ts-helpers';
@@ -6,7 +8,7 @@ import 'ts-helpers';
 // The only modules to be imported higher - node modules with es6-promise 3.x or other Promise polyfill dependency
 // (rule of thumb: do it if you have zone.js exception that it has been overwritten)
 // if you are including modules that modify Promise, such as NewRelic,, you must include them before polyfills
-import 'angular2-universal-polyfills';
+if (!globals.disableServerSideRender) require('angular2-universal-polyfills');
 
 // Fix Universal Style
 import { NodeDomRootRenderer, NodeDomRenderer } from 'angular2-universal/node';
@@ -52,6 +54,13 @@ export class BizServer {
   // ========================================
 
   public start(): BizServer {
+    this.app.get('*', function(req, res) {
+      res.setHeader('Content-Type', 'application/json');
+      var pojo = { status: 404, message: 'No Content' };
+      var json = JSON.stringify(pojo, null, 2);
+      res.status(404).send(json);
+    });
+    
     this.server = this.app.listen(process.env.PORT || 8888, () => {
       console.log(`Listening on: http://localhost:${this.server.address().port}`);
     });
@@ -65,14 +74,18 @@ export class BizServer {
 
   private init(): void {
     // enable prod for faster renders
-    enableProdMode();
+    if (!globals.disableServerSideRender) {
+      enableProdMode();
+    }
 
     this.app = express();
 
     // 1. set up Angular Universal to be the rendering engine for Express
-    this.app.engine('.html', createEngine({}));
-    this.app.set('views', path.join(ROOT, 'dist'));
-    this.app.set('view engine', 'html');
+    if (!globals.disableServerSideRender) {
+      this.app.engine('.html', createEngine({}));
+      this.app.set('views', path.join(ROOT, 'dist'));
+      this.app.set('view engine', 'html');
+    }
 
     this.app.use(compression());
 
@@ -82,14 +95,11 @@ export class BizServer {
     
     this.app.use('/client', express.static(path.join(ROOT, 'dist', 'client')));
     
-    this.app.get('/', ngPage(this.config.apps['root'], 'index', '/'));
-    
-    this.app.get('*', function(req, res) {
-      res.setHeader('Content-Type', 'application/json');
-      var pojo = { status: 404, message: 'No Content' };
-      var json = JSON.stringify(pojo, null, 2);
-      res.status(404).send(json);
-    });
+    if (!globals.disableServerSideRender) {
+      for (let route of this.config.routes) {
+        this.app.get(route, ngPage(this.config.apps['root'], 'index', '/'));
+      }
+    }
 
     function ngPage(module: any, htmlPath: string, baseUrl: string): any {
       return (req, res) => {

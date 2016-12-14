@@ -1,6 +1,6 @@
 import { BizNgModule } from './ng-module';
 
-export class BizScaffold<C> {
+export class BizFraming<C> {
 
   // ========================================
   // constructor
