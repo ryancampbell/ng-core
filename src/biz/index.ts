@@ -2,18 +2,18 @@ import { NgModule } from '@angular/core';
 
 import { BizConfig } from './config';
 import { BizNgModule } from './ng-module';
-import { BizScaffold } from './scaffold';
+import { BizFraming } from './framing';
 
 export {
   BizConfig,
   BizNgModule,
-  BizScaffold
+  BizFraming
 };
 
 export class Biz {
-  public ngModule(ngModule?: NgModule): BizNgModule {
+  static ngModule(ngModule?: NgModule): BizNgModule {
     return new BizNgModule(ngModule);
   }
 }
 
-export const biz: Biz = new Biz();
+export const biz = Biz;
