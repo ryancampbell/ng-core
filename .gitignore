@@ -8,15 +8,11 @@ node_modules
 .gi#
 *.js~
 *.ht~
-*.js.map
+*.js*
 *.d.ts
-x
-y
-z
-src/app/users/items.js~
+.vscode
 dist/build/app.js
 dist/build/app.js.map
-src/app/tasks/x.txt
 dist/build
 build
 platforms
