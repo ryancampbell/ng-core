@@ -8,9 +8,8 @@ import { HttpModule } from '@angular/http';
 //import { MaterialModule } from '@angular/material';
 
 import { BizContainerComponent } from './components/biz-container.component';
+import { BizFramer } from './framer';
 import { BizRootComponent } from './components/biz-root.component';
-
-import { BizFraming } from './framing';
 
 let universalModule: any;
 
@@ -37,8 +36,6 @@ export class BizNgModule {
   private _containers: any = {};
 
   private _data: any = {};
-
-  private _framing: BizFraming<any>;
 
   private _ngModule: NgModule;
 
@@ -140,15 +137,6 @@ export class BizNgModule {
   }
 
   /**
-   * Calls framing.build(this)
-   */
-  public framing(framing: BizFraming<any>): BizNgModule {
-    this._framing = framing;
-
-    return this;
-  }
-
-  /**
    * Builds @NgModule() config in the following order:
    * - Defaults
    * - Scaffold
@@ -157,9 +145,9 @@ export class BizNgModule {
    * - Component
    * - Route
    */
-  public build(): NgModule {
+  public frame(framers?: BizFramer<any> | Array<BizFramer<any>>): NgModule {
     this.buildDefaults();
-    this.buildFraming();
+    this.buildFramers(framers);
     this.buildRoot();        
     this.buildContainers();
     this.buildComponent();
@@ -167,6 +155,10 @@ export class BizNgModule {
     this.buildRoute();
 
     return this._ngModule;
+  }
+
+  public build(framers?: BizFramer<any> | Array<BizFramer<any>>): NgModule {
+    return this.frame(framers);
   }
 
   // ========================================
@@ -214,11 +206,15 @@ export class BizNgModule {
     }
   }
 
-  private buildFraming(): void {
-    let m: NgModule = this._ngModule;
-
-    if (this._framing) {
-      this._framing.build(this);
+  private buildFramers(framers: BizFramer<any> | Array<BizFramer<any>>): void {
+    if (framers) {
+      if (framers instanceof Array) {
+        for (let framer of framers) {
+          framer.frame(this);
+        }
+      } else {
+        framers.frame(this);
+      }
     }
   }
 
