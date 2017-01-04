@@ -145,9 +145,9 @@ export class BizNgModule {
    * - Component
    * - Route
    */
-  public frame(frames?: BizFramer<any> | Array<BizFramer<any>>): NgModule {
+  public frame(framers?: BizFramer<any> | Array<BizFramer<any>>): NgModule {
     this.buildDefaults();
-    this.buildFramers(frames instanceof Array ? frames : [frames]);
+    this.buildFramers(framers);
     this.buildRoot();        
     this.buildContainers();
     this.buildComponent();
@@ -157,8 +157,8 @@ export class BizNgModule {
     return this._ngModule;
   }
 
-  public build(frames?: BizFramer<any> | Array<BizFramer<any>>): NgModule {
-    return this.frame(frames);
+  public build(framers?: BizFramer<any> | Array<BizFramer<any>>): NgModule {
+    return this.frame(framers);
   }
 
   // ========================================
@@ -206,9 +206,15 @@ export class BizNgModule {
     }
   }
 
-  private buildFramers(frames: Array<BizFramer<any>>): void {
-    for (let frame of frames) {
-      frame.frame(this);
+  private buildFramers(framers: BizFramer<any> | Array<BizFramer<any>>): void {
+    if (framers) {
+      if (framers instanceof Array) {
+        for (let framer of framers) {
+          framer.frame(this);
+        }
+      } else {
+        framers.frame(this);
+      }
     }
   }
 
