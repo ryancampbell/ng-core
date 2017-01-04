@@ -8,7 +8,9 @@ node_modules
 .gi#
 *.js~
 *.ht~
-*.js*
+**/biz/**/*.js*
+*.js.map
+*.js
 *.d.ts
 .vscode
 dist/build/app.js
