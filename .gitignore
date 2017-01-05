@@ -8,14 +8,10 @@ node_modules
 .gi#
 *.js~
 *.ht~
-**/biz/**/*.js*
 *.js.map
 *.js
 *.d.ts
 .vscode
-x
-y
-z
 src/biz/**/*.js
 src/app/users/items.js~
 dist/build/app.js
