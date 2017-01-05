@@ -1,7 +1,7 @@
 import { WebpackHelper } from './helpers';
 import { commonConfig } from './webpack.common';
 import * as webpack from 'webpack';
-import * as webpackMerge from 'webpack-merge';
+const webpackMerge = require('webpack-merge');;
 
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const UglifyJsPlugin = require('webpack/lib/optimize/UglifyJsPlugin');
