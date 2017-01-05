@@ -45,6 +45,8 @@ export class BizNgModule {
 
   private _route: Route;
 
+  private isFraming: Boolean = false;
+
   // ========================================
   // constructor
   // ========================================
@@ -146,13 +148,21 @@ export class BizNgModule {
    * - Route
    */
   public frame(framers?: BizFramer<any> | Array<BizFramer<any>>): NgModule {
-    this.buildDefaults();
-    this.buildFramers(framers);
-    this.buildRoot();        
-    this.buildContainers();
-    this.buildComponent();
-    this.buildChildren();
-    this.buildRoute();
+    if (this.isFraming) {
+      this.buildFramers(framers);  
+    } else {
+      this.isFraming = true;
+
+      this.buildDefaults();
+      this.buildFramers(framers);
+      this.buildRoot();        
+      this.buildContainers();
+      this.buildComponent();
+      this.buildChildren();
+      this.buildRoute();
+
+      this.isFraming = false;
+    }
 
     return this._ngModule;
   }
