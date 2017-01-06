@@ -1,6 +1,7 @@
 import * as _ from 'lodash';
 
 import { ModuleWithProviders, NgModuleFactory, NgModule, Component } from '@angular/core';
+import { BrowserModule } from '@angular/platform-browser';
 import { CommonModule } from '@angular/common';
 import { FormsModule }  from '@angular/forms';
 import { Route, Routes, RouterModule, Resolve, ResolveData, Data, LoadChildren } from '@angular/router';
@@ -11,17 +12,17 @@ import { BizContainerComponent } from './components/biz-container.component';
 import { BizFramer } from './framer';
 import { BizRootComponent } from './components/biz-root.component';
 
-let universalModule: any;
+let universalModule: any = BrowserModule;
 
 /**
- * 
+ *
  */
 export function setUniversalModule(module: any): void {
   universalModule = module;
 }
 
 /**
- * 
+ *
  */
 export class BizNgModule {
 
@@ -62,7 +63,7 @@ export class BizNgModule {
   public ngModule(ngModule?: NgModule): BizNgModule {
     if (this._ngModule) {
       if (ngModule) {
-        _.merge(this._ngModule, ngModule); 
+        _.merge(this._ngModule, ngModule);
       }
     } else {
       this._ngModule = ngModule || {};
@@ -149,13 +150,13 @@ export class BizNgModule {
    */
   public frame(framers?: BizFramer<any> | Array<BizFramer<any>>): NgModule {
     if (this.isFraming) {
-      this.buildFramers(framers);  
+      this.buildFramers(framers);
     } else {
       this.isFraming = true;
 
       this.buildDefaults();
       this.buildFramers(framers);
-      this.buildRoot();        
+      this.buildRoot();
       this.buildContainers();
       this.buildComponent();
       this.buildChildren();
@@ -184,6 +185,7 @@ export class BizNgModule {
     m.exports = m.exports || [];
     m.providers = m.providers || [];
     m.bootstrap = m.bootstrap || [];
+    m.entryComponents = m.entryComponents || [];
   }
 
   private buildRoot(): void {
@@ -238,8 +240,8 @@ export class BizNgModule {
         return this._containers[key];
       });
 
-      m.exports = (m.exports || []).concat(containerComponents);
-      m.declarations = (m.declarations || []).concat(containerComponents);
+      m.exports = m.exports.concat(containerComponents);
+      m.declarations = m.declarations.concat(containerComponents);
     }
   }
 
@@ -260,7 +262,7 @@ export class BizNgModule {
       let newRoute: Route = {
         data: {}
       };
-      
+
       if (r.path || r.path == "") newRoute.path = r.path;
       if (r.pathMatch) newRoute.pathMatch = r.pathMatch;
       if (r.component) newRoute.component = r.component;
