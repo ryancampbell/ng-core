@@ -1,6 +1,7 @@
 // const webpack = require('webpack');
 import * as webpack from 'webpack';
 import { WebpackHelper } from './helpers';
+import { AotPlugin } from '@ngtools/webpack';
 
 const helpers = WebpackHelper.getInstance();
 const ForkCheckerPlugin = require('awesome-typescript-loader').ForkCheckerPlugin;
@@ -14,10 +15,7 @@ export var commonConfig = {
     rules: [
       {
         test: /\.ts$/,
-        loaders: [
-          'awesome-typescript-loader',
-          'angular2-template-loader'
-        ]
+        loader: '@ngtools/webpack'
       },
       {
         test: /\.html$/,
@@ -52,6 +50,11 @@ export var commonConfig = {
       /angular(\\|\/)core(\\|\/)src(\\|\/)linker/,
       helpers.root('./src')
     ),
+
+    new AotPlugin({
+      tsConfigPath: 'tsconfig.json',
+      entryModule: 'src/index#AppModule'
+    }),
 
     // new HtmlWebpackPlugin({
     //   template: 'src/index.html',
